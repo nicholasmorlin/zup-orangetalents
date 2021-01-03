@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.orangezup.openingaccount.services.exceptions.DuplicateKeyViolationException;
 import com.orangezup.openingaccount.services.exceptions.DataIntegrityException;
 import com.orangezup.openingaccount.services.exceptions.ObjectNotFoundException;
 
@@ -23,5 +24,11 @@ public class ResourceExceptionHandler {
 	public ResponseEntity<StandardError> dataIntegrity(DataIntegrityException e, HttpServletRequest request) {
 		StandardError err = new StandardError(HttpStatus.BAD_REQUEST.value(), e.getMessage(), System.currentTimeMillis());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+	}
+	
+	@ExceptionHandler(DuplicateKeyViolationException.class)
+	public ResponseEntity<StandardError> constraintViolation(DuplicateKeyViolationException e, HttpServletRequest request) {
+		StandardError err = new StandardError(HttpStatus.CONFLICT.value(), e.getMessage(), System.currentTimeMillis());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(err);
 	}
 }

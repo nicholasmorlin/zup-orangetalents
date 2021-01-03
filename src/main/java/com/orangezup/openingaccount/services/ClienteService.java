@@ -7,29 +7,42 @@ import org.springframework.stereotype.Service;
 
 import com.orangezup.openingaccount.domain.Cliente;
 import com.orangezup.openingaccount.repositories.ClienteRepository;
+import com.orangezup.openingaccount.services.exceptions.DataIntegrityException;
+import com.orangezup.openingaccount.services.exceptions.DuplicateKeyViolationException;
 
 @Service
 public class ClienteService {
 
 	@Autowired
 	private ClienteRepository clienterepo;
-	
+
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = clienterepo.findById(id);
 		return obj.orElse(null);
 	}
-	
+
 	public Cliente insert(Cliente obj) {
+
+		Optional<Cliente> clienteCpf = clienterepo.findByCpf(obj.getCpf());
+		Optional<Cliente> clienteEmail = clienterepo.findByEmail(obj.getEmail());
+		if (clienteCpf.isPresent() || clienteEmail.isPresent()) {
+			throw new DuplicateKeyViolationException("Chave duplicada");
+		}
+
 		obj.setId(null);
-		return clienterepo.save(obj);
+		try {
+			return clienterepo.save(obj);
+		} catch (Exception e) {
+			throw new DataIntegrityException("Não é possível"); 
+		}
 	}
-	
+
 	public Cliente update(Cliente obj) {
 		find(obj.getId());
 		return clienterepo.save(obj);
 	}
-	
-	public void delete (Integer id) {
+
+	public void delete(Integer id) {
 		find(id);
 		clienterepo.deleteById(id);
 	}
