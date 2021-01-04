@@ -14,6 +14,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.br.CPF;
 
+import com.orangezup.openingaccount.resources.response.ClienteResponse;
+
 @Entity
 public class Cliente implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -39,6 +41,11 @@ public class Cliente implements Serializable {
 
 	@NotNull
 	private Date birthday;
+	
+	public ClienteResponse toResponse() {
+		ClienteResponse cr = new ClienteResponse(this.id, this.name, this.email, this.cpf, this.birthday);
+		return cr;
+	}
 
 	public Cliente() {
 	}

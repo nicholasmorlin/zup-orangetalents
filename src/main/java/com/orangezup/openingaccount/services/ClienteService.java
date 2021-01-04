@@ -9,6 +9,7 @@ import com.orangezup.openingaccount.domain.Cliente;
 import com.orangezup.openingaccount.repositories.ClienteRepository;
 import com.orangezup.openingaccount.services.exceptions.DataIntegrityException;
 import com.orangezup.openingaccount.services.exceptions.DuplicateKeyViolationException;
+import com.orangezup.openingaccount.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class ClienteService {
@@ -18,7 +19,7 @@ public class ClienteService {
 
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = clienterepo.findById(id);
-		return obj.orElse(null);
+		return obj.orElseThrow(() -> new ObjectNotFoundException("Cliente não encontrado"));
 	}
 
 	public Cliente insert(Cliente obj) {
@@ -33,7 +34,7 @@ public class ClienteService {
 		try {
 			return clienterepo.save(obj);
 		} catch (Exception e) {
-			throw new DataIntegrityException("Não é possível"); 
+			throw new DataIntegrityException("Dados inválidos"); 
 		}
 	}
 

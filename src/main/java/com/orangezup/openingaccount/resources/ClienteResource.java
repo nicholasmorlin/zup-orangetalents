@@ -1,9 +1,7 @@
 package com.orangezup.openingaccount.resources;
 
-import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,10 +9,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.orangezup.openingaccount.domain.Cliente;
+import com.orangezup.openingaccount.resources.request.CreateClienteRequest;
+import com.orangezup.openingaccount.resources.response.ClienteResponse;
 import com.orangezup.openingaccount.services.ClienteService;
 
 @RestController
@@ -25,30 +25,31 @@ public class ClienteResource {
 	private ClienteService service;
 	
 	@GetMapping(value="/{id}")
-	public ResponseEntity<?> find(@PathVariable Integer id){
+	@ResponseStatus(HttpStatus.OK)
+	public ClienteResponse find(@PathVariable Integer id){
 		Cliente obj = service.find(id);
-		return ResponseEntity.ok().body(obj);
+		return obj.toResponse();
 	}
 	
 	@PostMapping
-	public ResponseEntity<Void> insert(@RequestBody Cliente obj){
-		obj = service.insert(obj);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-				.path("/{id}").buildAndExpand(obj.getId()).toUri();
-		return ResponseEntity.created(uri).build();
+	@ResponseStatus(HttpStatus.CREATED)
+	public ClienteResponse insert(@RequestBody CreateClienteRequest obj){
+		Cliente c = service.insert(obj.toDomain());
+		return c.toResponse();
 	}
 	
-	@PutMapping
-	public ResponseEntity<Void> update (@RequestBody Cliente obj, @PathVariable Integer id){
+	@PutMapping(value="/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public ClienteResponse update (@RequestBody Cliente obj, @PathVariable Integer id){
 		obj.setId(id);
 		obj = service.update(obj);
-		return ResponseEntity.noContent().build();
+		return obj.toResponse();
 	}
 	
-	@DeleteMapping
-	public ResponseEntity<Void> delete (@PathVariable Integer id){
+	@DeleteMapping(value="/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public void delete (@PathVariable Integer id){
 		service.delete(id);
-		return ResponseEntity.noContent().build();
 	}
 }
 
